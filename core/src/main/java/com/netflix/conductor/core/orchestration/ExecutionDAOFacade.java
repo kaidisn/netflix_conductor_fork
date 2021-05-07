@@ -284,12 +284,15 @@ public class ExecutionDAOFacade {
         }
     }
 
-    public void removeWorkflowWithExpiry(String workflowId, boolean archiveWorkflow, int ttlSeconds)
+    public void removeWorkflowWithExpiry(String workflowId, boolean archiveWorkflow, int ttlSeconds, boolean shouldRemoveWorkflowFromIndex)
     {
         try {
             Workflow workflow = getWorkflowById(workflowId, true);
 
-            removeWorkflowIndex(workflow, archiveWorkflow);
+            if(shouldRemoveWorkflowFromIndex){
+                removeWorkflowIndex(workflow, archiveWorkflow);
+            }
+
             // remove workflow from DAO with TTL
             try {
                 executionDAO.removeWorkflowWithExpiry(workflowId, ttlSeconds);
