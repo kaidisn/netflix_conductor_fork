@@ -12,9 +12,6 @@
  */
 package com.netflix.conductor.core.orchestration;
 
-import static com.netflix.conductor.core.execution.WorkflowExecutor.DECIDER_QUEUE;
-import static com.netflix.conductor.core.execution.WorkflowExecutor.isSystemTask;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.conductor.common.metadata.events.EventExecution;
@@ -34,6 +31,13 @@ import com.netflix.conductor.dao.PollDataDAO;
 import com.netflix.conductor.dao.QueueDAO;
 import com.netflix.conductor.dao.RateLimitingDAO;
 import com.netflix.conductor.metrics.Monitors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -41,11 +45,9 @@ import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.netflix.conductor.core.execution.WorkflowExecutor.DECIDER_QUEUE;
+import static com.netflix.conductor.core.execution.WorkflowExecutor.isSystemTask;
 
 /**
  * Service that acts as a facade for accessing execution data from the {@link ExecutionDAO}, {@link RateLimitingDAO} and {@link IndexDAO} storage layers
@@ -66,6 +68,7 @@ public class ExecutionDAOFacade {
     private final Configuration config;
 
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
+    private final boolean logMissingDocumentOnArchival;
 
     @Inject
     public ExecutionDAOFacade(ExecutionDAO executionDAO, QueueDAO queueDAO, IndexDAO indexDAO,
@@ -77,6 +80,8 @@ public class ExecutionDAOFacade {
         this.pollDataDAO = pollDataDAO;
         this.objectMapper = objectMapper;
         this.config = config;
+        this.logMissingDocumentOnArchival = config.logMissingDocumentOnArchival();
+
         this.scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(4,
             (runnable, executor) -> {
             LOGGER.warn("Request {} to delay updating index dropped in executor {}", runnable, executor);
@@ -268,11 +273,25 @@ public class ExecutionDAOFacade {
     private void removeWorkflowIndex(Workflow workflow , boolean archiveWorkflow) throws JsonProcessingException {
         if (archiveWorkflow) {
             if (workflow.getStatus().isTerminal()) {
-                // Only allow archival if workflow is in terminal state
-                // DO NOT archive async, since if archival errors out, workflow data will be lost
-                indexDAO.updateWorkflow(workflow.getWorkflowId(),
-                        new String[]{RAW_JSON_FIELD, ARCHIVED_FIELD},
-                        new Object[]{objectMapper.writeValueAsString(workflow), true});
+                try {
+                    String workflowIDFromES = indexDAO.get(workflow.getWorkflowId(), "workflowId");
+
+                    if(workflowIDFromES != null && !workflowIDFromES.isEmpty())
+                    {
+                        // Only allow archival if workflow is in terminal state
+                        // DO NOT archive async, since if archival errors out, workflow data will be lost
+                        indexDAO.updateWorkflow(workflow.getWorkflowId(),
+                                                new String[] {RAW_JSON_FIELD, ARCHIVED_FIELD},
+                                                new Object[] {"", true});
+
+                    }else{
+                        if(logMissingDocumentOnArchival){
+                            LOGGER.error("Workflow not found in ES while archiving: {}", workflow.getWorkflowId());
+                        }
+                    }
+                }catch (Exception ex){
+                    LOGGER.error("Error archiving the workflow : {}", workflow.getWorkflowId());
+                }
             } else {
                 throw new ApplicationException(Code.INVALID_INPUT, String.format("Cannot archive workflow: %s with status: %s",
                         workflow.getWorkflowId(),
@@ -284,25 +303,26 @@ public class ExecutionDAOFacade {
         }
     }
 
-    public void removeWorkflowWithExpiry(String workflowId, boolean archiveWorkflow, int ttlSeconds, boolean shouldRemoveWorkflowFromIndex)
+    public void removeWorkflowWithExpiry(String workflowId, boolean archiveWorkflow, int ttlSeconds)
     {
         try {
             Workflow workflow = getWorkflowById(workflowId, true);
 
-            if(shouldRemoveWorkflowFromIndex){
-                removeWorkflowIndex(workflow, archiveWorkflow);
-            }
+            removeWorkflowIndex(workflow, archiveWorkflow);
 
             // remove workflow from DAO with TTL
             try {
                 executionDAO.removeWorkflowWithExpiry(workflowId, ttlSeconds);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Monitors.recordDaoError("executionDao", "removeWorkflow");
                 throw ex;
             }
-        } catch (ApplicationException ae) {
+        }
+        catch (ApplicationException ae) {
             throw ae;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ApplicationException(ApplicationException.Code.BACKEND_ERROR, "Error removing workflow: " + workflowId, e);
         }
     }

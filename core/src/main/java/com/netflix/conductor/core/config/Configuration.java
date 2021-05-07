@@ -119,8 +119,8 @@ public interface Configuration {
     String WORKFLOW_ARCHIVAL_DELAY_QUEUE_WORKER_THREAD_COUNT_PROPERTY_NAME = "workflow.archival.delay.queue.worker.thread.count";
     int WORKFLOW_ARCHIVAL_DELAY_QUEUE_WORKER_THREAD_COUNT_DEFAULT_VALUE = 20;
 
-    String WORKFLOW_ARCHIVAL_REMOVE_WORKFLOW_INDEX_PROPERTY_NAME = "workflow.archival.remove.workflow.index";
-    boolean WORKFLOW_ARCHIVAL_REMOVE_WORKFLOW_INDEX__DEFAULT_VALUE = false;
+    String LOG_MISSING_DOCUMENT_ON_ARCHIVAL_ENABLED_PROPERTY_NAME = "log.missing.document.on.archival.enabled";
+    boolean LOG_MISSING_DOCUMENT_ON_ARCHIVAL_ENABLED_DEFAULT_VALUE = true;
 
     String OWNER_EMAIL_MANDATORY_NAME = "workflow.owner.email.mandatory";
     boolean OWNER_EMAIL_MANDATORY_DEFAULT_VALUE = true;
@@ -363,19 +363,17 @@ public interface Configuration {
         return getIntProperty(WORKFLOW_ARCHIVAL_DELAY_SECS_PROPERTY_NAME, getAsyncUpdateDelay());
     }
 
-    /**
-     * @return true if workflow document needs to be removed from ES index during archival
-     */
-    default boolean getRemoveWorkflowIndexOnArchival() {
-        return getBooleanProperty(WORKFLOW_ARCHIVAL_REMOVE_WORKFLOW_INDEX_PROPERTY_NAME, WORKFLOW_ARCHIVAL_REMOVE_WORKFLOW_INDEX__DEFAULT_VALUE);
-    }
 
+    default boolean logMissingDocumentOnArchival(){
+        return getBooleanProperty(LOG_MISSING_DOCUMENT_ON_ARCHIVAL_ENABLED_PROPERTY_NAME, LOG_MISSING_DOCUMENT_ON_ARCHIVAL_ENABLED_DEFAULT_VALUE);
+    }
     /**
      * @return the number of threads to process the delay queue in workflow archival
      */
     default int getWorkflowArchivalDelayQueueWorkerThreadCount() {
         return getIntProperty(WORKFLOW_ARCHIVAL_DELAY_QUEUE_WORKER_THREAD_COUNT_PROPERTY_NAME, WORKFLOW_ARCHIVAL_DELAY_QUEUE_WORKER_THREAD_COUNT_DEFAULT_VALUE);
     }
+
 
 
     /**
