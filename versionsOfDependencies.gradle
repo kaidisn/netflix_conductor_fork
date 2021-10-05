@@ -35,7 +35,7 @@ ext {
     revJerseyBundle = '1.19.1'
     revJerseyClient = '1.19.4'
     revJerseyGuice = '1.19.4'
-    revJetteyServer = '9.4.22.v20191022'
+    revJetteyServer = '9.4.41.v20210516'
     revJettyServlet = '9.4.22.v20191022'
     revJUnit = '4.12'
     revJsr311Api = '1.1.1'
