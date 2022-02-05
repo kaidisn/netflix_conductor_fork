@@ -20,7 +20,7 @@
   ],
   "license": "SEE LICENSE IN license.txt",
   "dependencies": {
-    "autoprefixer": "^6.0.0",
+    "autoprefixer": "^9.0.0",
     "babel-polyfill": "^6.3.14",
     "body-parser": "^1.18.3",
     "bunyan": "^1.7.1",
