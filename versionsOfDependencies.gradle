@@ -37,7 +37,7 @@ ext {
     revJerseyGuice = '1.19.4'
     revJetteyServer = '9.4.22.v20191022'
     revJettyServlet = '9.4.22.v20191022'
-    revJUnit = '4.12'
+    revJUnit = '4.13.1'
     revJsr311Api = '1.1.1'
     revJq = '0.0.12'
     revLog4jApi = '2.9.1'
