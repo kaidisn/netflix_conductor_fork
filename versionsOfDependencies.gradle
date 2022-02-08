@@ -2,14 +2,14 @@
 * Common place to define all the version dependencies */
 
 ext {
-    revApacheCommons='2.6'
+    revApacheCommons='2.7'
     revAwaitility = '3.1.2'
     revAwsSdk = '1.11.86'
     revArchaius = '0.7.5'
     revCassandra = '3.6.0'
     revCassandraUnit = '3.5.0.1'
     revCommonsLang3 = '3.0'
-    revCommonsIo = '2.4'
+    revCommonsIo = '2.7'
     revDynoQueues = '2.0.13'
     revElasticSearch5 = '5.6.8'
     revElasticSearch5Client = '5.6.8'
