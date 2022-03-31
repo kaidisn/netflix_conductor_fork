@@ -30,7 +30,7 @@ ext {
     revValidationApi = '2.0.1.Final'
     revJavaxInject = '1'
     revJacksonCore = '2.10.0'
-    revJacksonDatabind = '2.10.0'
+    revJacksonDatabind = '2.12.6.1'
     revJedis = '3.0.+'
     revJerseyBundle = '1.19.1'
     revJerseyClient = '1.19.4'
