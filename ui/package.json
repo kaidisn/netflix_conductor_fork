@@ -38,7 +38,7 @@
     "lodash.merge": "^4.3.0",
     "moment": "^2.22.2",
     "numeral": "^2.0.6",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-ldapauth": "^2.1.4",
     "passport-local": "^1.0.0",
     "path-to-regexp": "^6.1.0",
