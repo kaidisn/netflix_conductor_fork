@@ -47,7 +47,7 @@ ext {
     revNatsStreaming = '0.5.0'
     revOauthClient = '1.19.4'
     revOauthSignature = '1.19.4'
-    revProtoBuf = '3.5.1'
+    revProtoBuf = '4.0.0-rc-1'
     revProtogenAnnotations = '1.0.0'
     revProtogenCodegen = '1.4.0'
     revRarefiedRedis = '0.0.17'
