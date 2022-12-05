@@ -62,7 +62,7 @@ ext {
     revSpectator = '0.68.0'
     revRedisson = '3.11.4'
     revEmbeddedRedis = '0.6'
-    revCuratorRecipes = '2.4.0'
+    revCuratorRecipes = '2.11.1'
     revCuratorTest = '2.4.0'
     revPostgres = '42.2.6'
     revAmqpClient = '5.8.0'
