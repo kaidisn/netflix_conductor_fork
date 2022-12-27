@@ -6,7 +6,7 @@ ext {
     revAwaitility = '3.1.2'
     revAwsSdk = '1.11.86'
     revArchaius = '0.7.5'
-    revCassandra = '3.6.0'
+    revCassandra = '3.11.2'
     revCassandraUnit = '3.5.0.1'
     revCommonsLang3 = '3.0'
     revCommonsIo = '2.4'
